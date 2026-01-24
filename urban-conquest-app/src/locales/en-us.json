@@ -1,0 +1,43 @@
+{
+    "hub": "HUB",
+    "feed": "FEED",
+    "map": "MAP",
+    "rank": "RANKED",
+    "profile": "PROFILE",
+    "ranking": {
+        "title": "TERRITORY DOMAIN",
+        "region": "STATE",
+        "national": "NATIONAL",
+        "select_state": "Select State"
+    },
+    "dashboard": {
+        "km_today": "KM TODAY",
+        "territory_secured": "TERRITORY SECURED",
+        "next_milestone": "Next Milestone: Sector 4 (8km)",
+        "active_time": "Active Time",
+        "calories": "Calories",
+        "start_mission": "START MISSION",
+        "recent_activity": "RECENT ACTIVITY",
+        "view_all": "VIEW ALL"
+    },
+    "activities": {
+        "neon_sprint": "Neon District Sprint",
+        "sector_patrol": "Sector 7 Patrol",
+        "night_ops": "Night Ops",
+        "run": "Run",
+        "patrol": "Patrol",
+        "hike": "Hike"
+    },
+    "feed_page": {
+        "title": "FEED",
+        "captured_zone": "captured Zone",
+        "completed_mission": "completed mission",
+        "lost_control": "lost control of",
+        "notifications": "Notifications"
+    },
+    "settings": {
+        "title": "SETTINGS",
+        "language": "Language",
+        "select_language": "Select interface language"
+    }
+}

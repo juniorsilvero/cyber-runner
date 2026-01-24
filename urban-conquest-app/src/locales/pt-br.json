@@ -1,0 +1,43 @@
+{
+    "hub": "HUB",
+    "feed": "FEED",
+    "map": "MAPA",
+    "rank": "RANQUEADA",
+    "profile": "PERFIL",
+    "ranking": {
+        "title": "DOMÍNIO DE TERRITÓRIOS",
+        "region": "ESTADO",
+        "national": "BRASIL",
+        "select_state": "Selecionar Estado"
+    },
+    "dashboard": {
+        "km_today": "KM HOJE",
+        "territory_secured": "TERRITÓRIO DOMINADO",
+        "next_milestone": "Próximo Marco: Setor 4 (8km)",
+        "active_time": "Tempo Ativo",
+        "calories": "Calorias",
+        "start_mission": "INICIAR MISSÃO",
+        "recent_activity": "ATIVIDADE RECENTE",
+        "view_all": "VER TUDO"
+    },
+    "activities": {
+        "neon_sprint": "Sprint Neon District",
+        "sector_patrol": "Patrulha Setor 7",
+        "night_ops": "Operação Noturna",
+        "run": "Corrida",
+        "patrol": "Patrulha",
+        "hike": "Caminhada"
+    },
+    "feed_page": {
+        "title": "FEED",
+        "captured_zone": "capturou a Zona",
+        "completed_mission": "cumpriu a missão",
+        "lost_control": "perdeu o controle da",
+        "notifications": "Notificações"
+    },
+    "settings": {
+        "title": "CONFIGURAÇÕES",
+        "language": "Idioma",
+        "select_language": "Selecione o idioma da interface"
+    }
+}
