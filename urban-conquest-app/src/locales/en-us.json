@@ -17,7 +17,7 @@
         "active_time": "Active Time",
         "calories": "Calories",
         "start_mission": "START MISSION",
-        "recent_activity": "RECENT ACTIVITY",
+        "recent_activity": "ACTIVITY HISTORY",
         "view_all": "VIEW ALL"
     },
     "activities": {
@@ -39,5 +39,102 @@
         "title": "SETTINGS",
         "language": "Language",
         "select_language": "Select interface language"
+    },
+    "map_page": {
+        "select_world": "SELECT WORLD",
+        "choose_zone": "Choose your conquest zone.",
+        "locked": "LOCKED",
+        "back": "Back",
+        "worlds": {
+            "1": {
+                "name": "Neon Outskirts",
+                "description": "The journey begins."
+            },
+            "2": {
+                "name": "Industrial Sector",
+                "description": "Heavy machinery zone."
+            },
+            "3": {
+                "name": "Cyber Downtown",
+                "description": "Bright lights, fast pace."
+            },
+            "4": {
+                "name": "Skyline Bridge",
+                "description": "High altitude training."
+            },
+            "5": {
+                "name": "Data Center",
+                "description": "Cool and calculated."
+            },
+            "6": {
+                "name": "The Void",
+                "description": "Silence is your friend."
+            },
+            "7": {
+                "name": "Solar Array",
+                "description": "Burning calories."
+            },
+            "8": {
+                "name": "Toxic Wasteland",
+                "description": "Survival mode."
+            },
+            "9": {
+                "name": "Crystal Peaks",
+                "description": "Thin air, hard breathing."
+            },
+            "10": {
+                "name": "Citadel Core",
+                "description": "The final test."
+            }
+        },
+        "levels": {
+            "1": {
+                "title": "First Steps",
+                "description": "A short warmup run."
+            },
+            "2": {
+                "title": "Neon Warmup",
+                "description": "Picking up the pace."
+            },
+            "3": {
+                "title": "Street Pulse",
+                "description": "Feel the rhythm of the city."
+            },
+            "4": {
+                "title": "Cyber Sprint",
+                "description": "Push further."
+            },
+            "5": {
+                "title": "Block Run",
+                "description": "Building endurance."
+            },
+            "6": {
+                "title": "Sector 7 Dash",
+                "description": "5K Milestone!"
+            },
+            "7": {
+                "title": "The Long Run",
+                "description": "Testing limits."
+            },
+            "8": {
+                "title": "City Limit",
+                "description": "Almost there."
+            },
+            "9": {
+                "title": "Elite Zone",
+                "description": "10K Challenge."
+            },
+            "10": {
+                "title": "Citadel Boss",
+                "description": "The final conquest."
+            }
+        },
+        "level_label": "LEVEL",
+        "distance": "DISTANCE",
+        "km": "KM",
+        "rewards_goals": "Rewards & Goals",
+        "start_run": "START RUN",
+        "start": "START",
+        "stars_collected": "stars collected"
     }
 }

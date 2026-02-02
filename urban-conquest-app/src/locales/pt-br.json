@@ -17,7 +17,7 @@
         "active_time": "Tempo Ativo",
         "calories": "Calorias",
         "start_mission": "INICIAR MISSÃO",
-        "recent_activity": "ATIVIDADE RECENTE",
+        "recent_activity": "HISTÓRICO DE ATIVIDADES",
         "view_all": "VER TUDO"
     },
     "activities": {
@@ -39,5 +39,102 @@
         "title": "CONFIGURAÇÕES",
         "language": "Idioma",
         "select_language": "Selecione o idioma da interface"
+    },
+    "map_page": {
+        "select_world": "SELECIONAR MUNDO",
+        "choose_zone": "Escolha sua zona de conquista.",
+        "locked": "BLOQUEADO",
+        "back": "Voltar",
+        "worlds": {
+            "1": {
+                "name": "Arredores Neon",
+                "description": "A jornada começa."
+            },
+            "2": {
+                "name": "Setor Industrial",
+                "description": "Zona de maquinário pesado."
+            },
+            "3": {
+                "name": "Centro Cyber",
+                "description": "Luzes brilhantes, ritmo acelerado."
+            },
+            "4": {
+                "name": "Ponte Skyline",
+                "description": "Treino em alta altitude."
+            },
+            "5": {
+                "name": "Data Center",
+                "description": "Frio e calculado."
+            },
+            "6": {
+                "name": "O Vazio",
+                "description": "O silêncio é seu amigo."
+            },
+            "7": {
+                "name": "Painel Solar",
+                "description": "Queimando calorias."
+            },
+            "8": {
+                "name": "Terra Tóxica",
+                "description": "Modo sobrevivência."
+            },
+            "9": {
+                "name": "Picos de Cristal",
+                "description": "Ar rarefeito, respiração difícil."
+            },
+            "10": {
+                "name": "Núcleo da Cidadela",
+                "description": "O teste final."
+            }
+        },
+        "levels": {
+            "1": {
+                "title": "Primeiros Passos",
+                "description": "Uma corrida curta de aquecimento."
+            },
+            "2": {
+                "title": "Aquecimento Neon",
+                "description": "Acelerando o ritmo."
+            },
+            "3": {
+                "title": "Pulso das Ruas",
+                "description": "Sinta o ritmo da cidade."
+            },
+            "4": {
+                "title": "Sprint Cyber",
+                "description": "Vá mais longe."
+            },
+            "5": {
+                "title": "Corrida do Quarteirão",
+                "description": "Construindo resistência."
+            },
+            "6": {
+                "title": "Disparo Setor 7",
+                "description": "Marco de 5K!"
+            },
+            "7": {
+                "title": "A Longa Corrida",
+                "description": "Testando limites."
+            },
+            "8": {
+                "title": "Limite da Cidade",
+                "description": "Quase lá."
+            },
+            "9": {
+                "title": "Zona Elite",
+                "description": "Desafio 10K."
+            },
+            "10": {
+                "title": "Chefe da Cidadela",
+                "description": "A conquista final."
+            }
+        },
+        "level_label": "NÍVEL",
+        "distance": "DISTÂNCIA",
+        "km": "KM",
+        "rewards_goals": "Recompensas & Objetivos",
+        "start_run": "INICIAR CORRIDA",
+        "start": "INÍCIO",
+        "stars_collected": "estrelas coletadas"
     }
 }

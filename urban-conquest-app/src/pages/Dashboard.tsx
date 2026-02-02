@@ -3,14 +3,76 @@ import { CircularProgress } from "../components/ui/CircularProgress";
 import { StatCard } from "../components/ui/StatCard";
 import { cn } from "../lib/utils";
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
+import { RunningSession } from './RunningSession';
+
+interface ActivityData {
+    id: string;
+    type: 'corrida' | 'caminhada' | 'sprint';
+    route: [number, number][];
+    distance: number;
+    duration: number;
+    pace: string;
+    rcEarned: number;
+    timestamp: number;
+    name?: string;
+}
 
 export function Dashboard() {
     const { t } = useTranslation();
+    const [showRunningSession, setShowRunningSession] = useState(false);
+    const [activities, setActivities] = useState<ActivityData[]>([]);
 
-    const recentActivities = [
-        { id: 1, title: t('activities.neon_sprint'), type: t('activities.run'), time: "24 mins", dist: "5.2km", points: "+50 RC", color: "text-neon-yellow" },
-        { id: 2, title: t('activities.sector_patrol'), type: t('activities.patrol'), time: "42 mins", dist: "5.8km", points: "+120 RC", color: "text-emerald-400" },
-        { id: 3, title: t('activities.night_ops'), type: t('activities.hike'), time: "1h 12m", dist: "8.4km", points: "+200 RC", color: "text-purple-400" },
+    // Load activities from localStorage
+    useEffect(() => {
+        const stored = localStorage.getItem('activities');
+        if (stored) {
+            setActivities(JSON.parse(stored));
+        }
+    }, []);
+
+    // Save activity
+    const handleFinishActivity = (activity: ActivityData) => {
+        const updatedActivities = [activity, ...activities];
+        setActivities(updatedActivities);
+        localStorage.setItem('activities', JSON.stringify(updatedActivities));
+        setShowRunningSession(false);
+    };
+
+    // Show running session
+    if (showRunningSession) {
+        return (
+            <RunningSession
+                onFinish={handleFinishActivity}
+                onCancel={() => setShowRunningSession(false)}
+            />
+        );
+    }
+
+    const formatTime = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        if (h > 0) return `${h}h ${m}m`;
+        return `${m}m`;
+    };
+
+    const mockActivities = [
+        { id: 'mock1', title: t('activities.neon_sprint'), type: t('activities.run'), time: "24 mins", dist: "5.2km", points: "+50 RC", color: "text-neon-yellow" },
+        { id: 'mock2', title: t('activities.sector_patrol'), type: t('activities.patrol'), time: "42 mins", dist: "5.8km", points: "+120 RC", color: "text-emerald-400" },
+        { id: 'mock3', title: t('activities.night_ops'), type: t('activities.hike'), time: "1h 12m", dist: "8.4km", points: "+200 RC", color: "text-purple-400" },
+    ];
+
+    const displayActivities = [
+        ...activities.map(a => ({
+            id: a.id,
+            title: a.name || 'Atividade',
+            type: a.type.toUpperCase(),
+            time: formatTime(a.duration),
+            dist: `${a.distance}km`,
+            points: `+${a.rcEarned} RC`,
+            color: 'text-neon-yellow'
+        })),
+        ...mockActivities
     ];
 
     return (
@@ -19,7 +81,7 @@ export function Dashboard() {
             <div className="flex justify-between items-center bg-surface-dark p-4 rounded-xl border border-border-grey shadow-lg">
                 <div className="flex items-center space-x-2">
                     <Zap className="text-neon-yellow fill-neon-yellow" size={20} />
-                    <span className="font-display font-bold text-lg tracking-wider text-white">CYBER RUNNER</span>
+                    <span className="font-display font-bold text-lg tracking-wider text-white">CYBER RUN</span>
                 </div>
                 <div className="bg-white/5 px-3 py-1 rounded-full border border-white/10">
                     <span className="text-neon-yellow font-mono text-xs font-bold">1,250 RC</span>
@@ -54,8 +116,10 @@ export function Dashboard() {
             </div>
 
             {/* Action Button */}
-            {/* Action Button */}
-            <button className="w-full bg-neon-yellow text-black font-display font-bold text-xl py-5 rounded-2xl shadow-[0_0_20px_rgba(230,255,43,0.4)] hover:shadow-[0_0_30px_rgba(230,255,43,0.6)] hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 active:scale-95">
+            <button
+                onClick={() => setShowRunningSession(true)}
+                className="w-full bg-neon-yellow text-black font-display font-bold text-xl py-5 rounded-2xl shadow-[0_0_20px_rgba(230,255,43,0.4)] hover:shadow-[0_0_30px_rgba(230,255,43,0.6)] hover:scale-[1.02] transition-all flex items-center justify-center space-x-2 active:scale-95"
+            >
                 <Activity size={24} strokeWidth={2.5} />
                 <span>{t('dashboard.start_mission')}</span>
             </button>
@@ -68,7 +132,7 @@ export function Dashboard() {
                 </div>
 
                 <div className="space-y-3">
-                    {recentActivities.map((activity) => (
+                    {displayActivities.slice(0, 5).map((activity) => (
                         <div key={activity.id} className="bg-surface-dark border border-border-grey p-4 rounded-xl flex items-center justify-between group hover:border-white/30 transition-colors cursor-pointer">
                             <div className="flex items-center space-x-4">
                                 <div className="bg-white/5 p-3 rounded-lg text-white group-hover:bg-neon-yellow group-hover:text-black transition-colors">
