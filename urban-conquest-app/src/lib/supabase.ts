@@ -5,7 +5,15 @@ import type { Database } from './database.types';
 const supabaseUrl = 'https://hipicwchcnynhmlufwja.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpcGljd2NoY255bmhtbHVmd2phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDQwNDIsImV4cCI6MjA4NTcyMDA0Mn0.FcD2d7GKzv11feVb1xqGikv_lgS6gHUtkqfYkGJm5Cs';
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        persistSession: true,
+        storageKey: 'cyber-runner-auth',
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+    }
+});
 
 // Auth helpers
 export const signUp = async (email: string, password: string, name: string) => {
