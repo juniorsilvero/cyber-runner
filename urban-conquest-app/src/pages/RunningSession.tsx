@@ -211,9 +211,9 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
     }, []);
 
     return (
-        <div className="flex flex-col h-full bg-cyber-black">
+        <div className="flex flex-col h-full min-h-screen bg-cyber-black">
             {/* Header */}
-            <div className="relative z-10 px-6 pt-6 flex justify-between items-center bg-cyber-black/90 backdrop-blur-md pb-4 border-b border-white/5">
+            <div className="relative z-10 px-6 pt-6 flex justify-between items-center bg-cyber-black/90 backdrop-blur-md pb-4 border-b border-white/5 shrink-0">
                 <button onClick={onCancel} className="bg-surface-dark p-2 rounded-full border border-white/10 hover:border-white text-white transition-colors">
                     <ArrowLeft size={20} />
                 </button>
@@ -224,7 +224,7 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
             </div>
 
             {/* Map */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-h-[200px]">
                 <MapContainer
                     center={currentPosition}
                     zoom={16}
@@ -250,8 +250,8 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
                 </MapContainer>
             </div>
 
-            {/* Stats Panel */}
-            <div className="relative z-10 bg-surface-dark border-t border-white/10 p-6">
+            {/* Stats Panel - with extra bottom padding for mobile navigation */}
+            <div className="relative z-10 bg-surface-dark border-t border-white/10 p-4 pb-24 shrink-0">
                 <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="text-center">
                         <p className="text-tech-grey text-xs font-bold uppercase mb-1">Distância</p>

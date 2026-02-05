@@ -1,8 +1,50 @@
-import { MapPin, Heart, MessageSquare, Share2, Bell, Users } from "lucide-react";
+import { MapPin, Heart, MessageSquare, Share2, Bell, Users, RefreshCw } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { useState, useRef, useCallback } from 'react';
 
 export function Feed() {
     const { t } = useTranslation();
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [pullDistance, setPullDistance] = useState(0);
+    const startY = useRef(0);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Refresh threshold in pixels
+    const REFRESH_THRESHOLD = 80;
+
+    // Handle refresh
+    const handleRefresh = useCallback(async () => {
+        setIsRefreshing(true);
+        // Simulate refresh - will be replaced with Supabase fetch
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsRefreshing(false);
+        setPullDistance(0);
+    }, []);
+
+    // Touch handlers for pull-to-refresh
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (scrollRef.current && scrollRef.current.scrollTop === 0) {
+            startY.current = e.touches[0].clientY;
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (scrollRef.current && scrollRef.current.scrollTop === 0 && !isRefreshing) {
+            const currentY = e.touches[0].clientY;
+            const diff = currentY - startY.current;
+            if (diff > 0) {
+                setPullDistance(Math.min(diff * 0.5, REFRESH_THRESHOLD * 1.5));
+            }
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (pullDistance >= REFRESH_THRESHOLD && !isRefreshing) {
+            handleRefresh();
+        } else {
+            setPullDistance(0);
+        }
+    };
 
     // Empty feed - will be populated from Supabase
     const feedItems: Array<{
@@ -18,7 +60,30 @@ export function Feed() {
     }> = [];
 
     return (
-        <div className="flex flex-col space-y-6 px-4 pt-6 pb-20 animate-in fade-in duration-500">
+        <div
+            ref={scrollRef}
+            className="flex flex-col space-y-6 px-4 pt-6 pb-20 animate-in fade-in duration-500 overflow-y-auto h-full"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
+            {/* Pull to refresh indicator */}
+            {(pullDistance > 0 || isRefreshing) && (
+                <div
+                    className="flex justify-center items-center transition-all"
+                    style={{ height: isRefreshing ? 50 : pullDistance }}
+                >
+                    <RefreshCw
+                        className={`text-neon-yellow ${isRefreshing ? 'animate-spin' : ''}`}
+                        size={24}
+                        style={{
+                            transform: isRefreshing ? 'none' : `rotate(${pullDistance * 3}deg)`,
+                            opacity: Math.min(pullDistance / REFRESH_THRESHOLD, 1)
+                        }}
+                    />
+                </div>
+            )}
+
             {/* Header */}
             <div className="flex justify-between items-center mb-2 px-2">
                 <h2 className="font-display font-bold text-2xl text-white tracking-wider">{t('feed_page.title')}</h2>
@@ -37,6 +102,9 @@ export function Feed() {
                     <p className="text-tech-grey text-sm text-center max-w-xs">
                         Complete sua primeira corrida para ver suas atividades aqui e acompanhar seus amigos!
                     </p>
+                    {isRefreshing && (
+                        <p className="text-neon-yellow text-xs mt-4 animate-pulse">Atualizando...</p>
+                    )}
                 </div>
             ) : (
                 <div className="space-y-4">
@@ -100,4 +168,3 @@ export function Feed() {
         </div>
     );
 }
-

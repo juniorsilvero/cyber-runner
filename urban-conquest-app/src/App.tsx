@@ -103,6 +103,17 @@ function App() {
     return <Login onLogin={handleLogin} />;
   }
 
+  // Handle tab change with refresh on same tab
+  const handleTabChange = (tab: string) => {
+    if (tab === activeTab && tab === 'feed') {
+      // Force refresh by remounting Feed component
+      setActiveTab('');
+      setTimeout(() => setActiveTab('feed'), 10);
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'hub':
@@ -121,7 +132,7 @@ function App() {
   };
 
   return (
-    <Layout activeTab={activeTab} onTabChange={setActiveTab}>
+    <Layout activeTab={activeTab} onTabChange={handleTabChange}>
       {renderContent()}
     </Layout>
   );
