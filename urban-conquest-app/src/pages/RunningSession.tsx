@@ -252,7 +252,7 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
             </div>
 
             {/* Map - takes remaining space */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative z-0">
                 <MapContainer
                     center={currentPosition}
                     zoom={16}

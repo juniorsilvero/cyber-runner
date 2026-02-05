@@ -54,9 +54,12 @@ function StoryCard({ activity, sessionType }: { activity: ActivityData; sessionT
             style={{
                 aspectRatio: '9/16',
                 width: '140px',
-                background: 'linear-gradient(180deg, #0a2a2f 0%, #051a1f 50%, #000 100%)'
+                background: 'linear-gradient(180deg, #0a2a40 0%, #051a30 50%, #000 100%)'
             }}
         >
+            {/* DEBUG LABEL */}
+            {/* <div className="absolute top-0 right-0 bg-red-500 text-white text-[6px] px-1 z-50">FIX V4</div> */}
+
             {/* Top: Watermark */}
             <div className="absolute top-2 left-0 right-0 flex justify-center">
                 <div className="flex items-center gap-1 px-2 py-0.5 bg-black/60 rounded-full">
