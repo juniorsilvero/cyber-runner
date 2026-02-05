@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "../lib/utils";
 import { WorldSelect } from "./WorldSelect";
 import { useTranslation } from 'react-i18next';
+import { RunningSession } from './RunningSession';
 
 // Mock Data for "World 1" with Beginner Curve and Rewards
 const levels = [
@@ -73,12 +74,36 @@ const worldBackgrounds = {
     }
 };
 
+interface ActivityData {
+    id: string;
+    type: 'corrida' | 'caminhada' | 'sprint';
+    route: [number, number][];
+    distance: number;
+    duration: number;
+    pace: string;
+    rcEarned: number;
+    timestamp: number;
+    name?: string;
+}
+
 export function MapConquest() {
     const { t } = useTranslation();
     const [view, setView] = useState<'worlds' | 'levels'>('worlds');
     const [selectedWorld, setSelectedWorld] = useState<number>(1);
     const [selectedLevel, setSelectedLevel] = useState<any>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [showRunningSession, setShowRunningSession] = useState(false);
+
+    // Handle activity finish
+    const handleFinishActivity = (activity: ActivityData) => {
+        // Save to localStorage
+        const stored = localStorage.getItem('activities');
+        const activities = stored ? JSON.parse(stored) : [];
+        activities.unshift(activity);
+        localStorage.setItem('activities', JSON.stringify(activities));
+        setShowRunningSession(false);
+        setSelectedLevel(null);
+    };
 
     // Auto-scroll to current level on mount
     useEffect(() => {
@@ -87,6 +112,16 @@ export function MapConquest() {
             scrollContainerRef.current.scrollLeft = 0;
         }
     }, [view]);
+
+    // Show running session if active
+    if (showRunningSession) {
+        return (
+            <RunningSession
+                onFinish={handleFinishActivity}
+                onCancel={() => setShowRunningSession(false)}
+            />
+        );
+    }
 
     if (view === 'worlds') {
         return <WorldSelect onSelectWorld={(id) => {
@@ -325,7 +360,10 @@ export function MapConquest() {
                                     </div>
                                 </div>
 
-                                <button className="w-full bg-neon-yellow text-deep-petrol font-display font-black text-2xl py-6 rounded-3xl shadow-2xl transition-all flex items-center justify-center gap-4 uppercase tracking-widest">
+                                <button
+                                    onClick={() => setShowRunningSession(true)}
+                                    className="w-full bg-neon-yellow text-deep-petrol font-display font-black text-2xl py-6 rounded-3xl shadow-2xl transition-all flex items-center justify-center gap-4 uppercase tracking-widest hover:scale-[1.02] active:scale-95"
+                                >
                                     <Play fill="currentColor" size={28} />
                                     <span>{t('map_page.start_run')}</span>
                                 </button>

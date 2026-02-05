@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-// Navigation handled via parent component
+import { RunningSession } from './RunningSession';
 import {
     getDistanceRoutes,
     generateLeaderboard,
@@ -49,6 +49,9 @@ export function Rank({ onStartRun }: RankProps) {
     // Ranking state (for Ranking tab)
     const [selectedStateFilter, setSelectedStateFilter] = React.useState<string>('SP');
     const [stateRanking, setStateRanking] = React.useState<StateRanking[]>([]);
+
+    // Running session state
+    const [showRunningSession, setShowRunningSession] = React.useState(false);
 
     // Get user location on mount
     React.useEffect(() => {
@@ -109,10 +112,28 @@ export function Rank({ onStartRun }: RankProps) {
         if (onStartRun) {
             onStartRun(km, currentCity);
         } else {
-            console.log('Start run:', km, 'km in', currentCity);
-            // TODO: Integrate with RunningSession
+            setShowRunningSession(true);
         }
     };
+
+    // Handle activity finish
+    const handleFinishActivity = (activity: any) => {
+        const stored = localStorage.getItem('activities');
+        const activities = stored ? JSON.parse(stored) : [];
+        activities.unshift(activity);
+        localStorage.setItem('activities', JSON.stringify(activities));
+        setShowRunningSession(false);
+    };
+
+    // Show running session if active
+    if (showRunningSession) {
+        return (
+            <RunningSession
+                onFinish={handleFinishActivity}
+                onCancel={() => setShowRunningSession(false)}
+            />
+        );
+    }
 
     return (
         <div className="flex flex-col h-full bg-cyber-black overflow-hidden relative font-body antialiased">
