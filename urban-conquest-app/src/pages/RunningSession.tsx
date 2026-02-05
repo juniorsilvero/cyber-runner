@@ -231,24 +231,24 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
     }, []);
 
     return (
-        <div className="flex flex-col h-full min-h-screen bg-cyber-black">
-            {/* Header */}
-            <div className="relative z-10 px-6 pt-6 flex justify-between items-center bg-cyber-black/90 backdrop-blur-md pb-4 border-b border-white/5 shrink-0">
+        <div className="fixed inset-0 flex flex-col bg-cyber-black overflow-hidden">
+            {/* Header - fixed height */}
+            <div className="px-4 pt-4 pb-3 flex justify-between items-center bg-cyber-black/95 backdrop-blur-md border-b border-white/5 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
                 <button onClick={onCancel} className="bg-surface-dark p-2 rounded-full border border-white/10 hover:border-white text-white transition-colors">
                     <ArrowLeft size={20} />
                 </button>
-                <h2 className="font-display font-bold text-xl text-white tracking-wider uppercase">
+                <h2 className="font-display font-bold text-lg text-white tracking-wider uppercase">
                     Missão em Andamento
                 </h2>
                 <div className="w-10" /> {/* Spacer */}
             </div>
 
-            {/* Map */}
-            <div className="flex-1 relative min-h-[200px]">
+            {/* Map - takes remaining space */}
+            <div className="flex-1 relative">
                 <MapContainer
                     center={currentPosition}
                     zoom={16}
-                    className="w-full h-full z-10"
+                    className="w-full h-full"
                     zoomControl={false}
                     attributionControl={false}
                 >
@@ -270,31 +270,31 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
                 </MapContainer>
             </div>
 
-            {/* Stats Panel - with extra bottom padding for mobile navigation */}
-            <div className="relative z-10 bg-surface-dark border-t border-white/10 p-4 pb-24 shrink-0">
-                <div className="grid grid-cols-3 gap-4 mb-6">
+            {/* Stats Panel - fixed at bottom */}
+            <div className="bg-surface-dark border-t border-white/10 px-4 pt-3 pb-4 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+                <div className="grid grid-cols-3 gap-2 mb-4">
                     <div className="text-center">
-                        <p className="text-tech-grey text-xs font-bold uppercase mb-1">Distância</p>
-                        <p className="text-white font-display font-black text-2xl">{distance.toFixed(2)} <span className="text-sm">KM</span></p>
+                        <p className="text-tech-grey text-[10px] font-bold uppercase mb-0.5">Distância</p>
+                        <p className="text-white font-display font-black text-xl">{distance.toFixed(2)} <span className="text-xs">KM</span></p>
                     </div>
                     <div className="text-center">
-                        <p className="text-tech-grey text-xs font-bold uppercase mb-1">Tempo</p>
-                        <p className="text-white font-display font-black text-2xl">{formatTime(duration)}</p>
+                        <p className="text-tech-grey text-[10px] font-bold uppercase mb-0.5">Tempo</p>
+                        <p className="text-white font-display font-black text-xl">{formatTime(duration)}</p>
                     </div>
                     <div className="text-center">
-                        <p className="text-tech-grey text-xs font-bold uppercase mb-1">Ritmo</p>
-                        <p className="text-white font-display font-black text-2xl">{pace} <span className="text-sm">/km</span></p>
+                        <p className="text-tech-grey text-[10px] font-bold uppercase mb-0.5">Ritmo</p>
+                        <p className="text-white font-display font-black text-xl">{pace} <span className="text-xs">/km</span></p>
                     </div>
                 </div>
 
                 {/* Controls */}
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                     {!isTracking ? (
                         <button
                             onClick={handleStart}
-                            className="flex-1 bg-neon-yellow text-deep-petrol font-display font-black text-xl py-5 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-3 uppercase tracking-widest"
+                            className="flex-1 bg-neon-yellow text-deep-petrol font-display font-black text-lg py-4 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-2 uppercase tracking-wider"
                         >
-                            <Play fill="currentColor" size={24} />
+                            <Play fill="currentColor" size={22} />
                             <span>Iniciar</span>
                         </button>
                     ) : (
@@ -302,25 +302,25 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
                             {!isPaused ? (
                                 <button
                                     onClick={handlePause}
-                                    className="flex-1 bg-white/10 text-white font-display font-black text-lg py-5 rounded-2xl border border-white/20 transition-all flex items-center justify-center gap-3 uppercase tracking-wider"
+                                    className="flex-1 bg-white/10 text-white font-display font-black text-base py-4 rounded-2xl border border-white/20 transition-all flex items-center justify-center gap-2 uppercase tracking-wider"
                                 >
-                                    <Pause size={20} />
+                                    <Pause size={18} />
                                     <span>Pausar</span>
                                 </button>
                             ) : (
                                 <button
                                     onClick={handleResume}
-                                    className="flex-1 bg-neon-yellow text-deep-petrol font-display font-black text-lg py-5 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-3 uppercase tracking-wider"
+                                    className="flex-1 bg-neon-yellow text-deep-petrol font-display font-black text-base py-4 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-2 uppercase tracking-wider"
                                 >
-                                    <Play fill="currentColor" size={20} />
+                                    <Play fill="currentColor" size={18} />
                                     <span>Continuar</span>
                                 </button>
                             )}
                             <button
                                 onClick={handleStop}
-                                className="flex-1 bg-red-600 text-white font-display font-black text-lg py-5 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-3 uppercase tracking-wider"
+                                className="flex-1 bg-red-600 text-white font-display font-black text-base py-4 rounded-2xl shadow-2xl transition-all flex items-center justify-center gap-2 uppercase tracking-wider"
                             >
-                                <Square fill="currentColor" size={20} />
+                                <Square fill="currentColor" size={18} />
                                 <span>Parar</span>
                             </button>
                         </>
