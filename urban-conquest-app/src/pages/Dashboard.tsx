@@ -45,6 +45,7 @@ export function Dashboard() {
             <RunningSession
                 onFinish={handleFinishActivity}
                 onCancel={() => setShowRunningSession(false)}
+                sessionType="hub"
             />
         );
     }

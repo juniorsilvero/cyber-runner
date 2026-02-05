@@ -131,6 +131,8 @@ export function Rank({ onStartRun }: RankProps) {
             <RunningSession
                 onFinish={handleFinishActivity}
                 onCancel={() => setShowRunningSession(false)}
+                sessionType="ranked"
+                rankedInfo={{ km: selectedDistance || 5, city: currentCity || "Navegantes, SC" }}
             />
         );
     }

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Play, Pause, Square } from 'lucide-react';
 import { MapContainer, TileLayer, Polyline, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { ActivityCompletionModal } from '../components/ActivityCompletionModal';
 
 // Fix Leaflet marker icons
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -19,6 +20,9 @@ L.Icon.Default.mergeOptions({
 interface RunningSessionProps {
     onFinish: (activity: any) => void;
     onCancel: () => void;
+    sessionType?: 'hub' | 'phase' | 'ranked';
+    phaseInfo?: { id: number; kmTarget: number; worldName: string };
+    rankedInfo?: { km: number; city: string };
 }
 
 // Helper component to update map center
@@ -59,7 +63,7 @@ function formatPace(kmPerHour: number): string {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
+export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseInfo, rankedInfo }: RunningSessionProps) {
     const [isTracking, setIsTracking] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [route, setRoute] = useState<[number, number][]>([]);
@@ -67,6 +71,8 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
     const [distance, setDistance] = useState(0); // in km
     const [duration, setDuration] = useState(0); // in seconds
     const [pace, setPace] = useState('--:--');
+    const [showCompletionModal, setShowCompletionModal] = useState(false);
+    const [pendingActivity, setPendingActivity] = useState<any>(null);
 
     const watchIdRef = useRef<number | null>(null);
     const timerRef = useRef<number | null>(null);
@@ -153,7 +159,7 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
         handleStart();
     };
 
-    // Stop and save
+    // Stop and show completion modal
     const handleStop = () => {
         if (watchIdRef.current !== null) {
             navigator.geolocation.clearWatch(watchIdRef.current);
@@ -162,7 +168,7 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
             clearInterval(timerRef.current);
         }
 
-        // Save activity
+        // Prepare activity data
         const activity = {
             id: Date.now().toString(),
             type: 'corrida' as const,
@@ -175,7 +181,21 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
             name: `Corrida ${new Date().toLocaleDateString()}`
         };
 
-        onFinish(activity);
+        setPendingActivity(activity);
+        setShowCompletionModal(true);
+    };
+
+    // Handle modal confirm
+    const handleModalConfirm = (finalActivity: any) => {
+        setShowCompletionModal(false);
+        onFinish(finalActivity);
+    };
+
+    // Handle modal cancel
+    const handleModalCancel = () => {
+        setShowCompletionModal(false);
+        setPendingActivity(null);
+        // Resume to allow user to continue
     };
 
     // Get user location immediately on mount
@@ -307,6 +327,18 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
                     )}
                 </div>
             </div>
+
+            {/* Completion Modal */}
+            {showCompletionModal && pendingActivity && (
+                <ActivityCompletionModal
+                    activity={pendingActivity}
+                    sessionType={sessionType}
+                    phaseInfo={phaseInfo}
+                    rankedInfo={rankedInfo}
+                    onConfirm={handleModalConfirm}
+                    onCancel={handleModalCancel}
+                />
+            )}
         </div>
     );
 }

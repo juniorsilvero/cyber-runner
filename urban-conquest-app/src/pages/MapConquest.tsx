@@ -119,6 +119,8 @@ export function MapConquest() {
             <RunningSession
                 onFinish={handleFinishActivity}
                 onCancel={() => setShowRunningSession(false)}
+                sessionType="phase"
+                phaseInfo={{ id: selectedLevel, kmTarget: 2, worldName: "Sprint Urbano" }}
             />
         );
     }
