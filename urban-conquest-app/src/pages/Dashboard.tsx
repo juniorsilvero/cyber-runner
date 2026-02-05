@@ -19,23 +19,49 @@ export function Dashboard() {
 
     // Get user ID and load activities from Supabase
     useEffect(() => {
+        let isMounted = true;
+
         const loadActivities = async () => {
-            setIsLoading(true);
+            try {
+                // Get current user
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-            // Get current user
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-                setUserId(session.user.id);
+                if (sessionError) {
+                    console.error('Session error:', sessionError);
+                    if (isMounted) setIsLoading(false);
+                    return;
+                }
 
-                // Fetch activities from Supabase
-                const { data } = await getUserRuns(session.user.id, 50);
-                setActivities(data);
+                if (session?.user && isMounted) {
+                    setUserId(session.user.id);
+
+                    // Fetch activities from Supabase
+                    const { data, error } = await getUserRuns(session.user.id, 50);
+
+                    if (error) {
+                        console.error('Error fetching activities:', error);
+                    } else if (isMounted) {
+                        setActivities(data);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load activities:', error);
+            } finally {
+                if (isMounted) setIsLoading(false);
             }
-
-            setIsLoading(false);
         };
 
+        // Timeout failsafe - stop loading after 10 seconds no matter what
+        const timeoutId = setTimeout(() => {
+            if (isMounted) setIsLoading(false);
+        }, 10000);
+
         loadActivities();
+
+        return () => {
+            isMounted = false;
+            clearTimeout(timeoutId);
+        };
     }, []);
 
     // Save activity to Supabase
