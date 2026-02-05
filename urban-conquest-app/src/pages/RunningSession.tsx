@@ -231,7 +231,7 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
     }, []);
 
     return (
-        <div className="fixed inset-0 flex flex-col bg-cyber-black overflow-hidden">
+        <div className="fixed inset-0 z-50 flex flex-col bg-cyber-black overflow-hidden">
             {/* Header - fixed height */}
             <div className="px-4 pt-4 pb-3 flex justify-between items-center bg-cyber-black/95 backdrop-blur-md border-b border-white/5 shrink-0" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
                 <button onClick={onCancel} className="bg-surface-dark p-2 rounded-full border border-white/10 hover:border-white text-white transition-colors">
@@ -270,8 +270,8 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
                 </MapContainer>
             </div>
 
-            {/* Stats Panel - fixed at bottom */}
-            <div className="bg-surface-dark border-t border-white/10 px-4 pt-3 pb-4 shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+            {/* Stats Panel - fixed at bottom, with padding for nav bar */}
+            <div className="bg-surface-dark border-t border-white/10 px-4 pt-3 pb-24 shrink-0">
                 <div className="grid grid-cols-3 gap-2 mb-4">
                     <div className="text-center">
                         <p className="text-tech-grey text-[10px] font-bold uppercase mb-0.5">Distância</p>
