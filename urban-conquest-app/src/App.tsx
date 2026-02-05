@@ -22,15 +22,16 @@ function App() {
 
   // Check for existing session on mount
   useEffect(() => {
-    // Check current session with timeout
-    const checkSession = async () => {
+    let isMounted = true;
+
+    // Helper to set user from session
+    const setUserFromSession = async (session: any) => {
+      if (!session?.user || !isMounted) return;
+
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: profile } = await getProfile(session.user.id);
 
-        if (session?.user) {
-          // Get profile data
-          const { data: profile } = await getProfile(session.user.id);
-
+        if (isMounted) {
           setUser({
             id: session.user.id,
             email: session.user.email || '',
@@ -39,40 +40,72 @@ function App() {
           setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error('Session check error:', error);
+        console.error('Profile fetch error:', error);
+        // Still set basic user even if profile fetch fails
+        if (isMounted) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário'
+          });
+          setIsAuthenticated(true);
+        }
+      }
+    };
+
+    // Check current session
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error('Session check error:', error);
+        } else if (session) {
+          await setUserFromSession(session);
+        }
+      } catch (error) {
+        console.error('Session check exception:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     // Add timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
-      setIsLoading(false);
+      if (isMounted) setIsLoading(false);
     }, 5000);
 
     checkSession().finally(() => {
       clearTimeout(timeoutId);
     });
 
-    // Listen for auth changes
+    // Listen for auth changes (including token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const { data: profile } = await getProfile(session.user.id);
+      console.log('Auth event:', event);
 
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          name: profile?.display_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário'
-        });
-        setIsAuthenticated(true);
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+        if (session) {
+          await setUserFromSession(session);
+        }
       } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setIsAuthenticated(false);
-        setActiveTab('hub');
+        if (isMounted) {
+          setUser(null);
+          setIsAuthenticated(false);
+          setActiveTab('hub');
+        }
+      }
+
+      if (isMounted) {
+        setIsLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Handle login from Login component
