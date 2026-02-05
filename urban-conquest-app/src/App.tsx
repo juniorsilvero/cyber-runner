@@ -22,25 +22,37 @@ function App() {
 
   // Check for existing session on mount
   useEffect(() => {
-    // Check current session
+    // Check current session with timeout
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
 
-      if (session?.user) {
-        // Get profile data
-        const { data: profile } = await getProfile(session.user.id);
+        if (session?.user) {
+          // Get profile data
+          const { data: profile } = await getProfile(session.user.id);
 
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          name: profile?.display_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário'
-        });
-        setIsAuthenticated(true);
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            name: profile?.display_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário'
+          });
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
-    checkSession();
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
+
+    checkSession().finally(() => {
+      clearTimeout(timeoutId);
+    });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
