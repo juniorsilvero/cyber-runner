@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
-import { Star, Trophy, Zap, X, Check, Share2, Loader2 } from 'lucide-react';
+import { Star, Trophy, Zap, X, Check, Share2, Loader2, MapPin, Clock, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { saveRun, shareToFeed } from '../services/activityService';
 import { supabase } from '../lib/supabase';
@@ -45,75 +44,37 @@ function formatDuration(seconds: number): string {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-function getRouteBounds(route: [number, number][]): [[number, number], [number, number]] {
-    if (route.length === 0) return [[-27.0258, -48.6514], [-27.0258, -48.6514]];
-    let minLat = route[0][0], maxLat = route[0][0];
-    let minLng = route[0][1], maxLng = route[0][1];
-    route.forEach(([lat, lng]) => {
-        if (lat < minLat) minLat = lat;
-        if (lat > maxLat) maxLat = lat;
-        if (lng < minLng) minLng = lng;
-        if (lng > maxLng) maxLng = lng;
-    });
-    const latPadding = (maxLat - minLat) * 0.2 || 0.005;
-    const lngPadding = (maxLng - minLng) * 0.2 || 0.005;
-    return [
-        [minLat - latPadding, minLng - lngPadding],
-        [maxLat + latPadding, maxLng + lngPadding]
-    ];
-}
-
-// Story Card Component (9:16 aspect ratio preview)
+// Compact 9:16 Story Card (without Leaflet to avoid overflow issues)
 function StoryCard({ activity, sessionType }: { activity: ActivityData; sessionType: string }) {
-    const bounds = getRouteBounds(activity.route);
     const starsEarned = calculateStars(activity.pace);
 
     return (
-        <div className="relative bg-gradient-to-b from-deep-petrol via-surface-dark to-black rounded-2xl overflow-hidden shadow-2xl border border-white/10"
-            style={{ aspectRatio: '9/16', width: '100%', maxWidth: '180px' }}>
-            {/* Map fills most of the card */}
-            <div className="absolute inset-0">
-                <MapContainer
-                    bounds={bounds}
-                    className="w-full h-full"
-                    zoomControl={false}
-                    attributionControl={false}
-                    dragging={false}
-                    scrollWheelZoom={false}
-                    doubleClickZoom={false}
-                    touchZoom={false}
-                >
-                    <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-                    {activity.route.length > 1 && (
-                        <Polyline positions={activity.route} color="#E6FF2B" weight={3} opacity={1} />
-                    )}
-                </MapContainer>
-            </div>
-
-            {/* Gradient overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none" />
-
-            {/* Top: App Watermark */}
-            <div className="absolute top-3 left-0 right-0 flex justify-center">
-                <div className="flex items-center gap-1 px-2 py-1 bg-black/40 rounded-full backdrop-blur-sm">
-                    <Zap size={10} className="text-neon-yellow" />
-                    <span className="text-[8px] font-display font-black text-white uppercase tracking-wider">CYBER RUN</span>
+        <div
+            className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/20"
+            style={{
+                aspectRatio: '9/16',
+                width: '140px',
+                background: 'linear-gradient(180deg, #0a2a2f 0%, #051a1f 50%, #000 100%)'
+            }}
+        >
+            {/* Top: Watermark */}
+            <div className="absolute top-2 left-0 right-0 flex justify-center">
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-black/60 rounded-full">
+                    <Zap size={8} className="text-neon-yellow" />
+                    <span className="text-[7px] font-display font-black text-white uppercase">CYBER RUN</span>
                 </div>
             </div>
 
-            {/* Session Type Badge */}
-            {sessionType === 'ranked' && (
-                <div className="absolute top-10 left-0 right-0 flex justify-center">
-                    <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/30 rounded-full border border-amber-500/50">
-                        <Trophy size={8} className="text-amber-400" />
-                        <span className="text-[7px] font-black text-amber-400 uppercase">RANQUEADA</span>
+            {/* Session Badge */}
+            <div className="absolute top-7 left-0 right-0 flex justify-center">
+                {sessionType === 'ranked' && (
+                    <div className="flex items-center gap-0.5 px-1.5 py-0.5 bg-amber-500/30 rounded-full border border-amber-500/50">
+                        <Trophy size={7} className="text-amber-400" />
+                        <span className="text-[6px] font-black text-amber-400 uppercase">RANQUEADA</span>
                     </div>
-                </div>
-            )}
-
-            {sessionType === 'phase' && (
-                <div className="absolute top-10 left-0 right-0 flex justify-center">
-                    <div className="flex justify-center gap-0.5">
+                )}
+                {sessionType === 'phase' && (
+                    <div className="flex gap-0.5">
                         {[1, 2, 3].map((star) => (
                             <Star
                                 key={star}
@@ -122,39 +83,60 @@ function StoryCard({ activity, sessionType }: { activity: ActivityData; sessionT
                             />
                         ))}
                     </div>
+                )}
+            </div>
+
+            {/* Center: Route Icon Visual */}
+            <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative">
+                    {/* Circle design */}
+                    <div className="w-16 h-16 rounded-full border-2 border-neon-yellow/30 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full border border-neon-yellow/50 flex items-center justify-center">
+                            <Activity size={24} className="text-neon-yellow" />
+                        </div>
+                    </div>
+                    {/* Route dots */}
+                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-neon-yellow"></div>
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-green-400"></div>
                 </div>
-            )}
+            </div>
 
             {/* Bottom: Stats */}
-            <div className="absolute bottom-0 left-0 right-0 p-3">
-                {/* Main Distance */}
-                <div className="text-center mb-2">
-                    <p className="text-white font-display font-black text-2xl leading-none">
+            <div className="absolute bottom-0 left-0 right-0 p-2">
+                {/* Distance - Big */}
+                <div className="text-center mb-1.5">
+                    <p className="text-white font-display font-black text-xl leading-none">
                         {activity.distance.toFixed(2)}
                     </p>
-                    <p className="text-neon-yellow text-[9px] font-bold uppercase tracking-wider">QUILÔMETROS</p>
+                    <p className="text-neon-yellow text-[7px] font-bold uppercase tracking-wider">QUILÔMETROS</p>
                 </div>
 
-                {/* Time & Pace Row */}
-                <div className="flex justify-between gap-2">
-                    <div className="flex-1 bg-black/40 rounded-lg py-1.5 px-2 text-center backdrop-blur-sm">
-                        <p className="text-white font-display font-black text-sm leading-none">
+                {/* Time & Pace */}
+                <div className="flex gap-1.5">
+                    <div className="flex-1 bg-black/50 rounded-lg py-1 px-1.5 text-center">
+                        <div className="flex items-center justify-center gap-0.5 text-tech-grey">
+                            <Clock size={7} />
+                            <span className="text-[6px] uppercase">TEMPO</span>
+                        </div>
+                        <p className="text-white font-display font-black text-xs leading-none mt-0.5">
                             {formatDuration(activity.duration)}
                         </p>
-                        <p className="text-tech-grey text-[7px] uppercase mt-0.5">TEMPO</p>
                     </div>
-                    <div className="flex-1 bg-black/40 rounded-lg py-1.5 px-2 text-center backdrop-blur-sm">
-                        <p className="text-white font-display font-black text-sm leading-none">
+                    <div className="flex-1 bg-black/50 rounded-lg py-1 px-1.5 text-center">
+                        <div className="flex items-center justify-center gap-0.5 text-tech-grey">
+                            <MapPin size={7} />
+                            <span className="text-[6px] uppercase">RITMO</span>
+                        </div>
+                        <p className="text-white font-display font-black text-xs leading-none mt-0.5">
                             {activity.pace}
                         </p>
-                        <p className="text-tech-grey text-[7px] uppercase mt-0.5">RITMO/KM</p>
                     </div>
                 </div>
 
                 {/* RC Earned */}
-                <div className="mt-2 text-center">
-                    <span className="inline-flex items-center gap-1 text-neon-yellow text-[9px] font-black">
-                        <Zap size={8} />+{activity.rcEarned} RC
+                <div className="mt-1.5 text-center">
+                    <span className="inline-flex items-center gap-0.5 text-neon-yellow text-[8px] font-black">
+                        <Zap size={7} />+{activity.rcEarned} RC
                     </span>
                 </div>
             </div>
@@ -262,51 +244,51 @@ export function ActivityCompletionModal({
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4"
         >
             <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
-                className="bg-surface-dark border border-border-grey rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl"
+                className="bg-surface-dark border border-border-grey rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl"
             >
                 {/* Header */}
-                <div className="p-4 pb-2 text-center">
+                <div className="p-3 pb-2 text-center border-b border-white/10">
                     {sessionType === 'hub' && (
-                        <h2 className="font-display font-black text-xl text-white uppercase tracking-wider">
+                        <h2 className="font-display font-black text-lg text-white uppercase tracking-wider">
                             Missão Completa!
                         </h2>
                     )}
                     {sessionType === 'phase' && phaseInfo && (
                         <>
-                            <p className="text-neon-yellow text-[10px] font-bold uppercase tracking-wider mb-0.5">
+                            <p className="text-neon-yellow text-[9px] font-bold uppercase tracking-wider">
                                 {phaseInfo.worldName}
                             </p>
-                            <h2 className="font-display font-black text-xl text-white uppercase tracking-wider">
+                            <h2 className="font-display font-black text-lg text-white uppercase tracking-wider">
                                 Fase {phaseInfo.id} Completa!
                             </h2>
                         </>
                     )}
                     {sessionType === 'ranked' && rankedInfo && (
                         <>
-                            <div className="inline-flex items-center gap-1 bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/50 mb-1">
-                                <Trophy size={12} className="text-amber-400" />
-                                <span className="text-amber-400 font-black text-[10px] uppercase">Ranqueada</span>
+                            <div className="inline-flex items-center gap-1 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/50 mb-1">
+                                <Trophy size={10} className="text-amber-400" />
+                                <span className="text-amber-400 font-black text-[9px] uppercase">Ranqueada</span>
                             </div>
-                            <h2 className="font-display font-black text-xl text-white uppercase tracking-wider">
-                                {rankedInfo.km} KM Completos!
+                            <h2 className="font-display font-black text-lg text-white uppercase tracking-wider">
+                                {rankedInfo.km} KM
                             </h2>
                         </>
                     )}
                 </div>
 
                 {/* Story Card Preview - Centered */}
-                <div className="flex justify-center py-3">
+                <div className="flex justify-center py-4 bg-black/30">
                     <StoryCard activity={activity} sessionType={sessionType} />
                 </div>
 
                 {/* Name Input (Hub only) */}
                 {sessionType === 'hub' && (
-                    <div className="px-4 pb-2">
+                    <div className="px-4 py-2 border-t border-white/10">
                         <input
                             type="text"
                             value={routeName}
@@ -319,10 +301,10 @@ export function ActivityCompletionModal({
                 )}
 
                 {/* Error */}
-                {error && <p className="text-red-400 text-xs text-center px-4 pb-2">{error}</p>}
+                {error && <p className="text-red-400 text-xs text-center px-4 py-1">{error}</p>}
 
                 {/* Buttons */}
-                <div className="p-4 pt-2 space-y-2">
+                <div className="p-3 space-y-2 border-t border-white/10">
                     {!isSaved ? (
                         <button
                             onClick={handleSave}
