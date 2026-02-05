@@ -79,6 +79,10 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
     const startTimeRef = useRef<number>(0);
     const pausedTimeRef = useRef<number>(0);
 
+    // Refs to hold current values for pace calculation (avoid stale closure)
+    const durationRef = useRef<number>(0);
+    const distanceRef = useRef<number>(0);
+
     // Start tracking
     const handleStart = () => {
         if (!navigator.geolocation) {
@@ -90,10 +94,18 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
         setIsPaused(false);
         startTimeRef.current = Date.now() - pausedTimeRef.current;
 
-        // Start timer
+        // Start timer - update both state and ref
         timerRef.current = setInterval(() => {
             const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+            durationRef.current = elapsed; // Keep ref in sync for GPS callback
             setDuration(elapsed);
+
+            // Calculate pace every second using refs (fresh values)
+            if (durationRef.current > 0 && distanceRef.current > 0) {
+                const hours = durationRef.current / 3600;
+                const kmPerHour = distanceRef.current / hours;
+                setPace(formatPace(kmPerHour));
+            }
         }, 1000);
 
         // Start GPS tracking
@@ -111,16 +123,12 @@ export function RunningSession({ onFinish, onCancel, sessionType = 'hub', phaseI
                     if (prevRoute.length > 0) {
                         const lastPos = prevRoute[prevRoute.length - 1];
                         const dist = calculateDistance(lastPos[0], lastPos[1], latitude, longitude);
-                        setDistance((prevDist) => {
-                            const newDist = prevDist + dist;
-                            // Calculate pace
-                            const hours = duration / 3600;
-                            if (hours > 0 && newDist > 0) {
-                                const kmPerHour = newDist / hours;
-                                setPace(formatPace(kmPerHour));
-                            }
-                            return newDist;
-                        });
+
+                        // Only add significant movements (> 3 meters) to avoid GPS jitter
+                        if (dist > 0.003) {
+                            distanceRef.current += dist; // Update ref
+                            setDistance(distanceRef.current);
+                        }
                     }
 
                     return newRoute;
