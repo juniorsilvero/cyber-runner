@@ -1,16 +1,95 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout } from './components/layout/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { Settings } from './pages/Settings';
 import { Feed } from './pages/Feed';
 import { MapConquest } from './pages/MapConquest';
 import { Rank } from './pages/Rank';
+import { Login } from './pages/Login';
+import { supabase, signOut, getProfile } from './lib/supabase';
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+}
 
 function App() {
   const [activeTab, setActiveTab] = useState('hub');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Placeholder views for now
-  // Placeholder views for now
+  // Check for existing session on mount
+  useEffect(() => {
+    // Check current session
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        // Get profile data
+        const { data: profile } = await getProfile(session.user.id);
+
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: profile?.display_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário'
+        });
+        setIsAuthenticated(true);
+      }
+      setIsLoading(false);
+    };
+
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const { data: profile } = await getProfile(session.user.id);
+
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: profile?.display_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Usuário'
+        });
+        setIsAuthenticated(true);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setIsAuthenticated(false);
+        setActiveTab('hub');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Handle login from Login component
+  const handleLogin = (userData: User) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+  };
+
+  // Handle logout
+  const handleLogout = async () => {
+    await signOut();
+    setUser(null);
+    setIsAuthenticated(false);
+    setActiveTab('hub');
+  };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-cyber-black flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-neon-yellow border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // If not authenticated, show login page
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -23,7 +102,7 @@ function App() {
       case 'rank':
         return <Rank />;
       case 'profile':
-        return <Settings />;
+        return <Settings onLogout={handleLogout} user={user} />;
       default:
         return <Dashboard />;
     }

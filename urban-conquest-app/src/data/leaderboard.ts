@@ -1,5 +1,5 @@
 // Leaderboard data for distance-based ranking
-// Mocked data - will be replaced with Supabase later
+// Will be populated from Supabase
 
 export const DISTANCE_OPTIONS = [2, 5, 8, 10, 15, 20, 25] as const;
 export type DistanceKm = typeof DISTANCE_OPTIONS[number];
@@ -22,79 +22,11 @@ export interface DistanceRoute {
     top1: LeaderboardEntry | null;
 }
 
-// Brazilian runner names for mocked data
-const RUNNER_NAMES = [
-    'Lucas Silva', 'Ana Santos', 'Pedro Costa', 'Mariana Oliveira',
-    'Gabriel Souza', 'Julia Lima', 'Rafael Pereira', 'Camila Rodrigues',
-    'Bruno Almeida', 'Fernanda Martins', 'Diego Ferreira', 'Larissa Gomes',
-    'Thiago Ribeiro', 'Beatriz Carvalho', 'Matheus Araújo', 'Carolina Nascimento',
-    'Leonardo Barbosa', 'Amanda Cardoso', 'Guilherme Rocha', 'Isabela Vieira'
-];
-
-// Generate random time based on distance
-const generateTime = (km: number): string => {
-    const basePace = 4.5 + Math.random() * 2; // 4:30 to 6:30 per km
-    const totalMinutes = km * basePace;
-    const minutes = Math.floor(totalMinutes);
-    const seconds = Math.floor((totalMinutes - minutes) * 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-};
-
-// Generate pace from time and distance
-const generatePace = (timeStr: string, km: number): string => {
-    const [min, sec] = timeStr.split(':').map(Number);
-    const totalSeconds = min * 60 + sec;
-    const paceSeconds = totalSeconds / km;
-    const paceMin = Math.floor(paceSeconds / 60);
-    const paceSec = Math.floor(paceSeconds % 60);
-    return `${paceMin}:${paceSec.toString().padStart(2, '0')}/km`;
-};
-
-// Generate date within last 30 days
-const generateDate = (): string => {
-    const daysAgo = Math.floor(Math.random() * 30);
-    const date = new Date();
-    date.setDate(date.getDate() - daysAgo);
-    return date.toLocaleDateString('pt-BR');
-};
-
-// Generate avatar color
-const generateAvatar = (): string => {
-    const colors = [
-        'bg-gradient-to-br from-yellow-400 to-orange-500',
-        'bg-gradient-to-br from-cyan-400 to-blue-500',
-        'bg-gradient-to-br from-pink-400 to-purple-500',
-        'bg-gradient-to-br from-green-400 to-emerald-500',
-        'bg-gradient-to-br from-red-400 to-rose-500',
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-};
-
 // Generate leaderboard for a specific city and distance
-export const generateLeaderboard = (city: string, km: DistanceKm): LeaderboardEntry[] => {
-    // Use city name as seed for consistent results
-    const seed = city.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + km;
-    const shuffledNames = [...RUNNER_NAMES].sort(() => (seed % 2) - 0.5);
-
-    const entries: LeaderboardEntry[] = [];
-    for (let i = 0; i < 10; i++) {
-        const time = generateTime(km);
-        entries.push({
-            rank: i + 1,
-            username: shuffledNames[i % shuffledNames.length],
-            avatar: generateAvatar(),
-            time,
-            pace: generatePace(time, km),
-            date: generateDate(),
-        });
-    }
-
-    // Sort by time (fastest first)
-    return entries.sort((a, b) => {
-        const [aMin, aSec] = a.time.split(':').map(Number);
-        const [bMin, bSec] = b.time.split(':').map(Number);
-        return (aMin * 60 + aSec) - (bMin * 60 + bSec);
-    }).map((entry, idx) => ({ ...entry, rank: idx + 1 }));
+// Returns empty array - will be populated from Supabase
+export const generateLeaderboard = (_city: string, _km: DistanceKm): LeaderboardEntry[] => {
+    // Empty - will fetch from Supabase
+    return [];
 };
 
 // Get distance routes with Top 1 for each
@@ -204,28 +136,10 @@ export interface StateRanking {
 }
 
 // Generate Top 100 for a state
-export const getStateRanking = (stateCode: string): StateRanking[] => {
-    const seed = stateCode.charCodeAt(0) + stateCode.charCodeAt(1);
-    const shuffledNames = [...RUNNER_NAMES, ...RUNNER_NAMES, ...RUNNER_NAMES, ...RUNNER_NAMES, ...RUNNER_NAMES]
-        .sort(() => (seed % 3) - 1);
-
-    const cities = ['São Paulo', 'Rio de Janeiro', 'Curitiba', 'Porto Alegre', 'Florianópolis',
-        'Belo Horizonte', 'Salvador', 'Fortaleza', 'Recife', 'Brasília'];
-
-    const entries: StateRanking[] = [];
-    for (let i = 0; i < 100; i++) {
-        entries.push({
-            rank: i + 1,
-            username: shuffledNames[i % shuffledNames.length] + (i > 19 ? ` ${Math.floor(i / 20)}` : ''),
-            avatar: generateAvatar(),
-            firstPlaces: Math.max(1, 50 - i - Math.floor(Math.random() * 5)),
-            city: cities[i % cities.length],
-            totalRuns: 50 + Math.floor(Math.random() * 200),
-        });
-    }
-
-    return entries.sort((a, b) => b.firstPlaces - a.firstPlaces)
-        .map((entry, idx) => ({ ...entry, rank: idx + 1 }));
+// Returns empty array - will be populated from Supabase
+export const getStateRanking = (_stateCode: string): StateRanking[] => {
+    // Empty - will fetch from Supabase
+    return [];
 };
 
 // Reverse geocoding to get city from coordinates

@@ -56,24 +56,25 @@ export function Dashboard() {
         return `${m}m`;
     };
 
-    const mockActivities = [
-        { id: 'mock1', title: t('activities.neon_sprint'), type: t('activities.run'), time: "24 mins", dist: "5.2km", points: "+50 RC", color: "text-neon-yellow" },
-        { id: 'mock2', title: t('activities.sector_patrol'), type: t('activities.patrol'), time: "42 mins", dist: "5.8km", points: "+120 RC", color: "text-emerald-400" },
-        { id: 'mock3', title: t('activities.night_ops'), type: t('activities.hike'), time: "1h 12m", dist: "8.4km", points: "+200 RC", color: "text-purple-400" },
-    ];
+    // Only use real activities, no mock data
+    const displayActivities = activities.map(a => ({
+        id: a.id,
+        title: a.name || 'Atividade',
+        type: a.type.toUpperCase(),
+        time: formatTime(a.duration),
+        dist: `${a.distance}km`,
+        points: `+${a.rcEarned} RC`,
+        color: 'text-neon-yellow'
+    }));
 
-    const displayActivities = [
-        ...activities.map(a => ({
-            id: a.id,
-            title: a.name || 'Atividade',
-            type: a.type.toUpperCase(),
-            time: formatTime(a.duration),
-            dist: `${a.distance}km`,
-            points: `+${a.rcEarned} RC`,
-            color: 'text-neon-yellow'
-        })),
-        ...mockActivities
-    ];
+    // Calculate real stats from activities
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayActivities = activities.filter(a => a.timestamp >= todayStart.getTime());
+    const todayDistance = todayActivities.reduce((sum, a) => sum + a.distance, 0);
+    const todayTime = todayActivities.reduce((sum, a) => sum + a.duration, 0);
+    const todayCalories = Math.round(todayDistance * 60); // ~60 cal per km estimate
+    const totalRC = activities.reduce((sum, a) => sum + a.rcEarned, 0);
 
     return (
         <div className="flex flex-col space-y-6 px-6 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -84,7 +85,7 @@ export function Dashboard() {
                     <span className="font-display font-bold text-lg tracking-wider text-white">CYBER RUN</span>
                 </div>
                 <div className="bg-white/5 px-3 py-1 rounded-full border border-white/10">
-                    <span className="text-neon-yellow font-mono text-xs font-bold">1,250 RC</span>
+                    <span className="text-neon-yellow font-mono text-xs font-bold">{totalRC} RC</span>
                 </div>
             </div>
 
@@ -93,15 +94,15 @@ export function Dashboard() {
                 <div className="absolute top-0 right-0 p-6 opacity-5">
                     <Activity size={120} />
                 </div>
-                <CircularProgress value={65} title="5.2" subtitle={t('dashboard.km_today')} />
+                <CircularProgress value={todayDistance > 0 ? Math.min((todayDistance / 10) * 100, 100) : 0} title={todayDistance.toFixed(1)} subtitle={t('dashboard.km_today')} />
 
                 <div className="w-full mt-6">
                     <div className="flex justify-between text-xs font-bold text-tech-grey mb-2 uppercase tracking-wider">
                         <span>{t('dashboard.territory_secured')}</span>
-                        <span>12%</span>
+                        <span>0%</span>
                     </div>
                     <div className="h-3 w-full bg-black/40 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-neon-yellow to-emerald-400 w-[12%] rounded-full shadow-[0_0_10px_rgba(230,255,43,0.3)]"></div>
+                        <div className="h-full bg-gradient-to-r from-neon-yellow to-emerald-400 w-0 rounded-full shadow-[0_0_10px_rgba(230,255,43,0.3)]"></div>
                     </div>
                     <div className="text-right mt-1">
                         <span className="text-[10px] text-white/40">{t('dashboard.next_milestone')}</span>
@@ -111,8 +112,8 @@ export function Dashboard() {
 
             {/* Secondary Stats Grid */}
             <div className="grid grid-cols-2 gap-4">
-                <StatCard icon={Timer} value="42:10" label={t('dashboard.active_time')} />
-                <StatCard icon={Flame} value="340" label={t('dashboard.calories')} />
+                <StatCard icon={Timer} value={formatTime(todayTime) || "0m"} label={t('dashboard.active_time')} />
+                <StatCard icon={Flame} value={todayCalories.toString()} label={t('dashboard.calories')} />
             </div>
 
             {/* Action Button */}

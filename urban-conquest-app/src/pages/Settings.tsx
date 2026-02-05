@@ -1,7 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { Settings as SettingsIcon, Globe, MapPin, User } from 'lucide-react';
+import { Settings as SettingsIcon, Globe, MapPin, User, LogOut, ChevronRight } from 'lucide-react';
 
-export function Settings() {
+interface SettingsProps {
+    onLogout?: () => void;
+    user?: { id: string; email: string; name: string } | null;
+}
+
+export function Settings({ onLogout, user }: SettingsProps) {
     const { t, i18n } = useTranslation();
 
     const changeLanguage = (lng: string) => {
@@ -9,7 +14,7 @@ export function Settings() {
     };
 
     return (
-        <div className="flex flex-col space-y-6 px-6 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex flex-col space-y-6 px-6 pt-6 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-y-auto">
             {/* Header */}
             <div className="flex items-center space-x-3 bg-deep-petrol p-4 rounded-xl border border-white/5 shadow-lg">
                 <SettingsIcon className="text-neon-yellow" size={24} />
@@ -18,8 +23,23 @@ export function Settings() {
                 </span>
             </div>
 
+            {/* User Profile Card */}
+            {user && (
+                <div className="bg-gradient-to-r from-surface-dark to-deep-petrol border border-white/10 p-5 rounded-2xl">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 bg-gradient-to-br from-neon-yellow to-yellow-500 rounded-xl flex items-center justify-center text-xl font-black text-deep-petrol shadow-lg">
+                            {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-white text-lg truncate">{user.name}</h3>
+                            <p className="text-tech-grey text-sm truncate">{user.email}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Language Selector */}
-            <div className="bg-surface-dark border border-white/5 p-6 rounded-[2rem]">
+            <div className="bg-surface-dark border border-white/5 p-6 rounded-2xl">
                 <div className="flex items-center space-x-3 mb-4">
                     <Globe className="text-tech-grey" size={20} />
                     <h3 className="font-bold text-white tracking-wide">{t('settings.language')}</h3>
@@ -51,20 +71,38 @@ export function Settings() {
                 </div>
             </div>
 
-            {/* Profile Preview (Decorational) */}
-            <div className="opacity-50 pointer-events-none mt-8 space-y-4">
-                <div className="bg-surface-dark p-4 rounded-xl flex items-center justify-between">
+            {/* Account Options */}
+            <div className="bg-surface-dark border border-white/5 rounded-2xl overflow-hidden">
+                <button className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors border-b border-white/5">
                     <div className="flex items-center gap-3">
                         <User size={20} className="text-tech-grey" />
-                        <span className="text-tech-grey font-bold">Account</span>
+                        <span className="text-white font-bold">Editar Perfil</span>
                     </div>
-                </div>
-                <div className="bg-surface-dark p-4 rounded-xl flex items-center justify-between">
+                    <ChevronRight size={18} className="text-tech-grey" />
+                </button>
+                <button className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors border-b border-white/5">
                     <div className="flex items-center gap-3">
                         <MapPin size={20} className="text-tech-grey" />
-                        <span className="text-tech-grey font-bold">Privacy Zones</span>
+                        <span className="text-white font-bold">Zonas de Privacidade</span>
                     </div>
-                </div>
+                    <ChevronRight size={18} className="text-tech-grey" />
+                </button>
+            </div>
+
+            {/* Logout Button */}
+            {onLogout && (
+                <button
+                    onClick={onLogout}
+                    className="w-full bg-red-500/10 border border-red-500/30 text-red-400 font-bold py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-red-500/20 transition-colors"
+                >
+                    <LogOut size={20} />
+                    Sair da Conta
+                </button>
+            )}
+
+            {/* App Version */}
+            <div className="text-center pt-4">
+                <p className="text-tech-grey/50 text-xs">CyberRun v1.0.0</p>
             </div>
         </div>
     );
