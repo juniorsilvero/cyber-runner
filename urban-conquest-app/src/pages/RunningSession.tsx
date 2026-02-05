@@ -178,6 +178,26 @@ export function RunningSession({ onFinish, onCancel }: RunningSessionProps) {
         onFinish(activity);
     };
 
+    // Get user location immediately on mount
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setCurrentPosition([latitude, longitude]);
+                },
+                (error) => {
+                    console.warn('Initial GPS error:', error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
+        }
+    }, []);
+
     // Cleanup on unmount
     useEffect(() => {
         return () => {
