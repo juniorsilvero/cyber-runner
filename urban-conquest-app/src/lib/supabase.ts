@@ -17,38 +17,39 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 
 // Auth helpers
 export const signUp = async (email: string, password: string, name: string) => {
-    const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-            data: { name }
+    try {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { name }
+            }
+        });
+
+        if (error) return { data, error };
+
+        // If signup successful and we have a user, ensure profile is created
+        if (data.user && data.session) {
+            // Create profile - only include columns that exist in schema
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                    id: data.user.id,
+                    username: email.split('@')[0],
+                    display_name: name
+                });
+
+            if (profileError) {
+                console.error('Error creating profile:', profileError);
+                // Don't fail the signup if profile creation fails
+            }
         }
-    });
 
-    if (error) return { data, error };
-
-    // If signup successful and we have a user, ensure profile is created
-    if (data.user) {
-        // Create profile if it doesn't exist
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-                id: data.user.id,
-                username: email.split('@')[0],
-                display_name: name,
-                email: email,
-                created_at: new Date().toISOString()
-            })
-            .select()
-            .single();
-
-        if (profileError) {
-            console.error('Error creating profile:', profileError);
-            // Don't fail the signup if profile creation fails, but log it
-        }
+        return { data, error };
+    } catch (err) {
+        console.error('SignUp error:', err);
+        return { data: { user: null, session: null }, error: err as Error };
     }
-
-    return { data, error };
 };
 
 export const signIn = async (email: string, password: string) => {
