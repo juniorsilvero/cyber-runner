@@ -137,12 +137,22 @@ export function Login({ onLogin }: LoginProps) {
             return;
         }
 
-        if (data.user && onLogin) {
-            onLogin({
-                id: data.user.id,
-                email: data.user.email || '',
-                name: registerForm.name
-            });
+        // Check if session was created (Auto-login)
+        if (data.session && data.user) {
+            if (onLogin) {
+                onLogin({
+                    id: data.user.id,
+                    email: data.user.email || '',
+                    name: registerForm.name
+                });
+            }
+        } else {
+            // No session -> Email verification required
+            setAuthError(null);
+            // Reset form or switch to login logic could go here
+            // But we will show a success message instead of error
+            alert("Conta criada com sucesso! Se necessário, verifique seu email para ativar a conta antes de fazer login.");
+            setActiveTab('login');
         }
 
         setIsLoading(false);

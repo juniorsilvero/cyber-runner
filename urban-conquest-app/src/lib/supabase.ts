@@ -24,6 +24,30 @@ export const signUp = async (email: string, password: string, name: string) => {
             data: { name }
         }
     });
+
+    if (error) return { data, error };
+
+    // If signup successful and we have a user, ensure profile is created
+    if (data.user) {
+        // Create profile if it doesn't exist
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+                id: data.user.id,
+                username: email.split('@')[0],
+                display_name: name,
+                email: email,
+                created_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (profileError) {
+            console.error('Error creating profile:', profileError);
+            // Don't fail the signup if profile creation fails, but log it
+        }
+    }
+
     return { data, error };
 };
 
@@ -47,6 +71,11 @@ export const signInWithGoogle = async () => {
 
 export const signOut = async () => {
     const { error } = await supabase.auth.signOut();
+
+    // Explicitly clear localStorage to ensure complete logout
+    localStorage.removeItem('cyber-runner-auth');
+    localStorage.removeItem('sb-hipicwchcnynhmlufwja-auth-token');
+
     return { error };
 };
 
